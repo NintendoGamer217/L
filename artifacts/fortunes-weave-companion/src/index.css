@@ -30,3 +30,17 @@ button,input,select{font:inherit}button{cursor:pointer}.serif{font-family:var(--
 @media(max-width:650px){.topbar{padding:15px 18px}.page{padding:26px 17px 42px}.top-meta{font-size:8px}.chapter-body{grid-template-columns:1fr;padding-left:0;gap:16px}.chapter-aside{border-left:0;border-top:1px solid var(--line);padding:14px 0 0}.loot-grid,.scene-grid{grid-template-columns:1fr}.scene-card{min-height:150px}.toolbar .select{flex:1}.stat-strip{padding:12px}.ambience-fab{right:15px}}
 .loot-name,.loot-meta{display:block}
 @media(max-width:650px){.db-item{flex-wrap:wrap}.db-right{width:calc(100% - 52px);margin-left:52px;text-align:left}}
+.loot-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 12px}
+.loot-note{padding:13px}
+.loot-note .detail{margin:0}
+.character-table{overflow:hidden}
+.character-grid{display:grid;grid-template-columns:minmax(140px,1.05fr) minmax(190px,1.4fr) minmax(90px,.7fr) minmax(250px,2fr);gap:12px;align-items:start}
+.character-table-head{padding:11px 14px;color:var(--gold);background:rgba(12,18,26,.55);font:9px var(--app-font-mono);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.character-table-row{padding:13px 14px;border-bottom:1px solid var(--line)}
+.character-table-row:last-child{border-bottom:0}
+.character-cell{min-width:0;color:#b1b7b8;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.character-name-cell{display:flex;align-items:center;gap:10px}
+.character-name{font:16px var(--app-font-serif);color:#e8e2d3}
+.recruitment-cell{color:#c3bfaf}
+@media(max-width:650px){.loot-notes{grid-template-columns:1fr}.character-table-head{display:none}.character-grid{grid-template-columns:minmax(0,1fr);gap:0}.character-table-row{padding:11px 13px}.character-cell:not(.character-name-cell){display:grid;grid-template-columns:94px minmax(0,1fr);gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.character-cell:not(.character-name-cell):before{content:attr(data-label);color:var(--gold);font:9px var(--app-font-mono);text-transform:uppercase;letter-spacing:.07em}.character-name-cell{padding-bottom:8px}.character-cell:last-child{border-bottom:0}}
+@media(min-width:651px){.character-grid{grid-template-columns:minmax(120px,1fr) minmax(150px,1.2fr) minmax(65px,.65fr) minmax(110px,.9fr) minmax(190px,1.6fr)}}
