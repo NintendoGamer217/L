@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
 import { BookOpen, Boxes, Check, ChevronDown, ChevronRight, Compass, Gem, Headphones, Library, Map, Music2, Pause, Play, ScrollText, Search, Shield, Sparkles, Volume2, VolumeX } from 'lucide-react';
-import { acts, characters, classes, items, lootRecords, type LootType } from '@/data/gameData';
+import { acts, characters, classes, items, lootRecords, type ClassRecord, type LootType } from '@/data/gameData';
 
 const progressKey = 'fwc-progress-v1';
 const collectedKey = 'fwc-collected-v1';
@@ -107,11 +107,13 @@ type DatabaseRecord = {
   sub: string;
   note: string;
   faction?: string;
-  className?: string;
+  startingClass?: string;
   chapter?: string;
   recruitment?: string;
   sortChapter?: number;
   sortRank?: string;
+  certificationRequirements?: string;
+  masterySkill?: string;
 };
 
 function DatabasePage() {
@@ -119,8 +121,10 @@ function DatabasePage() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('alpha');
   const [faction, setFaction] = useState('all');
+  const [tier, setTier] = useState('all');
+  const tiers: ClassRecord['tier'][] = ['Base', 'Beginner', 'Specialty', 'Advanced', 'Master', 'Divine'];
   const factions = [...new Set(characters.map((character) => character.faction))].sort((a, b) => a.localeCompare(b));
-  const options: [string, string][] = tab === 'Characters' ? [['alpha', 'Alphabetical'], ['chapter', 'Chapter unlocked']] : tab === 'Classes' ? [['alpha', 'Alphabetical'], ['rank', 'Tier']] : [['alpha', 'Alphabetical'], ['rank', 'Rank / tier']];
+  const options: [string, string][] = tab === 'Characters' ? [['alpha', 'Alphabetical'], ['chapter', 'Chapter unlocked'], ['faction', 'Faction']] : tab === 'Classes' ? [['alpha', 'Alphabetical'], ['rank', 'Tier']] : [['alpha', 'Alphabetical'], ['rank', 'Rank / tier']];
   const records = useMemo<DatabaseRecord[]>(() => {
     let list: DatabaseRecord[] =
       tab === 'Characters' ? characters
@@ -131,34 +135,50 @@ function DatabasePage() {
           sub: character.chapter,
           note: character.recruitment,
           faction: character.faction,
-          className: character.className,
+          startingClass: character.startingClass,
           chapter: character.chapter,
           recruitment: character.recruitment,
           sortChapter: Number.parseInt(character.chapter.match(/\d+/)?.[0] ?? '', 10) || 999,
         })) :
-      tab === 'Classes' ? classes.map((record) => ({ id: record.id, name: record.name, sub: `${record.tier} · ${record.weapon}`, note: record.note, sortRank: record.tier })) :
+      tab === 'Classes' ? classes
+        .filter((record) => tier === 'all' || record.tier === tier)
+        .map((record) => ({
+          id: record.id,
+          name: record.name,
+          sub: record.tier,
+          note: '',
+          sortRank: record.tier,
+          certificationRequirements: record.certificationRequirements,
+          masterySkill: record.masterySkill,
+        })) :
       items.map((record) => ({ id: record.id, name: record.name, sub: `${record.kind} · ${record.rank}`, note: record.note, sortRank: record.rank }));
-    list = list.filter((record) => `${record.name} ${record.sub} ${record.note} ${record.faction ?? ''} ${record.className ?? ''}`.toLowerCase().includes(query.toLowerCase()));
+    list = list.filter((record) => `${record.name} ${record.sub} ${record.note} ${record.faction ?? ''} ${record.startingClass ?? ''} ${record.certificationRequirements ?? ''} ${record.masterySkill ?? ''}`.toLowerCase().includes(query.toLowerCase()));
     if (sort === 'chapter') list.sort((a, b) => (a.sortChapter ?? 999) - (b.sortChapter ?? 999) || a.name.localeCompare(b.name));
+    else if (sort === 'faction') list.sort((a, b) => (a.faction ?? '').localeCompare(b.faction ?? '') || a.name.localeCompare(b.name));
     else if (sort === 'rank') list.sort((a, b) => (a.sortRank ?? '').localeCompare(b.sortRank ?? '') || a.name.localeCompare(b.name));
     else list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
-  }, [tab, query, sort, faction]);
+  }, [tab, query, sort, faction, tier]);
   const isCharacterTab = tab === 'Characters';
+  const isClassTab = tab === 'Classes';
+  const classGroups = useMemo(() => tiers.map((value) => ({
+    tier: value,
+    records: records.filter((record) => record.sortRank === value),
+  })).filter((group) => group.records.length), [records]);
   return <main className="page">
-    <PageIntro section="Field notes · 03" title="The field index" noticeTitle="Roster status." notice="Character factions and recruitment details use your supplied roster. Class and item tabs show only information included in those notes; missing fields are marked.">Quick references for the Prologue roster, classes, and known items.</PageIntro>
-    <div className="tabs" role="tablist" aria-label="Database category">{(['Characters', 'Classes', 'Weapons / Items'] as DatabaseTab[]).map((value) => <button role="tab" aria-selected={tab === value} className={`tab ${tab === value ? 'active' : ''}`} onClick={() => { setTab(value); setSort('alpha'); setFaction('all'); }} data-testid={`tab-database-${value.toLowerCase().replace(/[^a-z]+/g, '-')}`} key={value}>{value}</button>)}</div>
-    <div className="toolbar"><label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" /><input aria-label={`Search ${tab}`} data-testid="input-search-database" placeholder={`Search ${tab.toLowerCase()}…`} value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>{isCharacterTab && <select className="select" aria-label="Filter by faction" data-testid="select-character-faction" value={faction} onChange={(e) => setFaction(e.target.value)}><option value="all">All factions</option>{factions.map((value) => <option key={value} value={value}>{value}</option>)}</select>}<select className="select" aria-label="Sort database" data-testid="select-database-sort" value={sort} onChange={(e) => setSort(e.target.value)}>{options.map(([v, label]) => <option key={v} value={v}>Sort: {label}</option>)}</select></div>
+    <PageIntro section="Field notes · 03" title="The field index" noticeTitle="Recruitment, at a glance." notice="Support is shared across the save. Non-route recruits need a Gift first to unlock Recruit, then Support + Renown + the final condition.">Quick references for the Prologue roster, classes, and known items.</PageIntro>
+    <div className="tabs" role="tablist" aria-label="Database category">{(['Characters', 'Classes', 'Weapons / Items'] as DatabaseTab[]).map((value) => <button type="button" role="tab" aria-selected={tab === value} className={`tab ${tab === value ? 'active' : ''}`} onClick={() => { setTab(value); setSort(value === 'Classes' ? 'rank' : 'alpha'); setFaction('all'); setTier('all'); }} data-testid={`tab-database-${value.toLowerCase().replace(/[^a-z]+/g, '-')}`} key={value}>{value}</button>)}</div>
+    <div className="toolbar"><label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" aria-hidden="true" /><input aria-label={`Search ${tab}`} data-testid="input-search-database" placeholder={`Search ${tab.toLowerCase()}…`} value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>{isCharacterTab && <select className="select" aria-label="Filter by faction" data-testid="select-character-faction" value={faction} onChange={(e) => setFaction(e.target.value)}><option value="all">All factions</option>{factions.map((value) => <option key={value} value={value}>{value}</option>)}</select>}{isClassTab && <select className="select" aria-label="Filter by class tier" data-testid="select-class-tier" value={tier} onChange={(e) => setTier(e.target.value)}><option value="all">All tiers</option>{tiers.map((value) => <option key={value} value={value}>{value}</option>)}</select>}<select className="select" aria-label="Sort database" data-testid="select-database-sort" value={sort} onChange={(e) => setSort(e.target.value)}>{options.map(([v, label]) => <option key={v} value={v}>Sort: {label}</option>)}</select></div>
     {records.length ? isCharacterTab ? <div className="panel character-table" role="table" aria-label="Character roster">
-      <div className="character-grid character-table-head" role="row"><div role="columnheader">Character</div><div role="columnheader">Faction</div><div role="columnheader">Class</div><div role="columnheader">Chapter unlocked</div><div role="columnheader">Recruitment</div></div>
+      <div className="character-grid character-table-head" role="row"><div role="columnheader">Character</div><div role="columnheader">Faction</div><div role="columnheader">Starting class</div><div role="columnheader">Chapter unlocked</div><div role="columnheader">Recruitment</div></div>
       {records.map((record) => <div className="character-grid character-table-row" key={record.id} role="row" data-testid={`row-database-${record.id}`}>
         <div className="character-cell character-name-cell" role="cell" data-label="Character"><span className="initial">{record.name.slice(0, 1)}</span><span className="character-name">{record.name}</span></div>
         <div className="character-cell" role="cell" data-label="Faction">{record.faction}</div>
-        <div className="character-cell" role="cell" data-label="Class">{record.className}</div>
+        <div className="character-cell" role="cell" data-label="Starting class">{record.startingClass}</div>
         <div className="character-cell" role="cell" data-label="Chapter unlocked">{record.chapter}</div>
         <div className="character-cell recruitment-cell" role="cell" data-label="Recruitment">{record.recruitment}</div>
       </div>)}
-    </div> : <div className="panel db-list" role="list">{records.map((record) => <div className="db-item" key={record.id} role="listitem" data-testid={`row-database-${record.id}`}><div className="initial">{record.name.slice(0, 1)}</div><div className="db-main"><div className="db-name">{record.name}</div><div className="db-sub">{record.note}</div></div><div className="db-right">{record.sub}</div></div>)}</div> : <div className="panel empty"><strong>No entries found</strong>Try another search.</div>}
+    </div> : isClassTab ? <div className={`class-index ${sort === 'rank' ? 'tier-grouped' : ''}`} data-testid="list-class-records">{(sort === 'rank' ? classGroups.flatMap((group) => [{ tierHeader: group.tier, record: null as DatabaseRecord | null }, ...group.records.map((record) => ({ tierHeader: null, record }))]) : records.map((record) => ({ tierHeader: null, record }))).map(({ tierHeader, record }) => tierHeader ? <h2 className="class-tier-heading" key={`tier-${tierHeader}`} data-testid={`heading-class-tier-${tierHeader.toLowerCase()}`}>{tierHeader}<span>{classGroups.find((group) => group.tier === tierHeader)?.records.length} classes</span></h2> : record && <article className="panel class-record" key={record.id} data-testid={`row-database-${record.id}`}><div className="class-record-heading"><div className="initial">{record.name.slice(0, 1)}</div><div className="db-main"><div className="db-name">{record.name}</div><div className="db-sub">{record.sub} tier</div></div></div><div className="class-detail"><span className="subhead">Certification requirements</span><p className="detail">{record.certificationRequirements}</p></div><div className="class-detail"><span className="subhead">Mastery skill</span><p className="detail">{record.masterySkill}</p></div></article>)}</div> : <div className="panel db-list" role="list">{records.map((record) => <div className="db-item" key={record.id} role="listitem" data-testid={`row-database-${record.id}`}><div className="initial">{record.name.slice(0, 1)}</div><div className="db-main"><div className="db-name">{record.name}</div><div className="db-sub">{record.note}</div></div><div className="db-right">{record.sub}</div></div>)}</div> : <div className="panel empty" data-testid="status-database-empty"><strong>No entries found</strong>Try another search or filter.</div>}
   </main>;
 }
 
