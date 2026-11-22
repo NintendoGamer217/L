@@ -7,13 +7,13 @@ export type Chapter = {
   overview: string;
   winCondition: string;
   bossTip: string;
-  lootNote: string;
+  lootNote?: string;
   recruits: string[];
   steps: string[];
   objectives: Objective[];
 };
 export type Act = { id: string; title: string; chapters: Chapter[] };
-export type LootType = 'Weapons' | 'Gold' | 'Seals' | 'Stat Boosters' | 'Key Items';
+export type LootType = 'Chests' | 'Missables' | 'Weapons' | 'Gold' | 'Seals' | 'Stat Boosters' | 'Key Items';
 export type Loot = { id: string; name: string; chapter: string; type: LootType; source: string };
 export type Character = {
   id: string;
@@ -82,6 +82,176 @@ export const acts: Act[] = [
       },
     ],
   },
+  {
+    id: 'theodora-path-wolf-part-i',
+    title: 'Theodora’s Path · Wolf Obelisk · Part I',
+    chapters: [
+      {
+        id: 'theodora-ch01',
+        title: 'Chapter 1 · Theodora, the Iron Bastion',
+        subtitle: 'Theodora, Bonaventure, and Tobias join',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Reach the target destination and defeat all enemy units. Loss if Theodora falls.',
+        bossTip: 'Diego · Bahr Vahn',
+        recruits: ['Theodora', 'Bonaventure', 'Tobias'],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch01-objective', text: 'Reach the target destination and defeat all enemy units' },
+        ],
+      },
+      {
+        id: 'theodora-ch02',
+        title: 'Chapter 2 · Dyan’s Uprising',
+        subtitle: 'Check glowing blue overworld spots',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Dyan. Loss if Theodora falls.',
+        bossTip: 'Dyan · Huver',
+        recruits: [],
+        steps: ['Check glowing blue overworld spots for early hidden events.'],
+        objectives: [
+          { id: 'theodora-ch02-objective', text: 'Defeat Dyan' },
+        ],
+      },
+      {
+        id: 'theodora-ch03',
+        title: 'Chapter 3 · Tumult at the Imperial Capital',
+        subtitle: 'Guests join the battle',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Idi. Loss if Theodora or Orchel falls.',
+        bossTip: 'Idi',
+        recruits: ['Orchel (guest)', 'Diego (guest)', 'Seteth (guest)', 'Loretta (guest)'],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch03-objective', text: 'Defeat Idi' },
+        ],
+      },
+      {
+        id: 'theodora-ch04',
+        title: 'Chapter 4 · Unlikely Allegiances',
+        subtitle: 'Permanent recruits and new systems',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Zarcone. Loss if Theodora, Cai, or Orchel falls.',
+        bossTip: 'Zarcone',
+        recruits: ['Lilian (permanent)', 'Lysander (permanent)'],
+        steps: ['Unlock Arena Training, Class Licenses, and Battalions.'],
+        objectives: [
+          { id: 'theodora-ch04-objective', text: 'Defeat Zarcone' },
+          { id: 'theodora-ch04-recruits', text: 'Have Lilian and Lysander join permanently' },
+          { id: 'theodora-ch04-unlocks', text: 'Unlock Arena Training, Class Licenses, and Battalions' },
+        ],
+      },
+      {
+        id: 'theodora-ch05',
+        title: 'Chapter 5 · An Ominous Clash',
+        subtitle: 'Route guests join the battle',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Bartholomé, then Bahr Vahn. Loss if Theodora, Talimun, or Anatolia falls.',
+        bossTip: 'Bartholomé · Bahr Vahn',
+        recruits: ['Talimun (guest)', 'Ursula (guest)', 'Anatolia (guest)', 'Sha Lan (guest)'],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch05-objective', text: 'Defeat Bartholomé, then Bahr Vahn' },
+        ],
+      },
+      {
+        id: 'theodora-ch06',
+        title: 'Chapter 6 · The Treasure Hunter',
+        subtitle: 'Timed Hightown missable',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Bahr Vahn. Loss if Theodora falls.',
+        bossTip: 'Bahr Vahn',
+        lootNote: 'Missable: speak to the coordinator in Hightown on 4/6 at 18:00 for cutscenes and a match with Bertrand against Yang Jie.',
+        recruits: ['Hong Hua (guest)'],
+        steps: ['Missable: speak to the coordinator in Hightown on 4/6 at 18:00 for cutscenes and a match with Bertrand against Yang Jie.'],
+        objectives: [
+          { id: 'theodora-ch06-objective', text: 'Defeat Bahr Vahn' },
+        ],
+      },
+      {
+        id: 'theodora-ch07',
+        title: 'Chapter 7 · A Voice From the Darkness',
+        subtitle: 'Arena hidden NPC',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Alexandra. Loss if Theodora, Dietrich, or Leda falls.',
+        bossTip: 'Alexandra',
+        lootNote: 'Hidden NPC: fast-travel to the Arena on turn one and walk right near Sofia and Peter.',
+        recruits: ['Dietrich (guest)', 'Fabio (guest)', 'Leda (guest)', 'Buccar (guest)'],
+        steps: ['Hidden NPC: fast-travel to the Arena on turn one and walk right near Sofia and Peter.'],
+        objectives: [
+          { id: 'theodora-ch07-objective', text: 'Defeat Alexandra' },
+        ],
+      },
+      {
+        id: 'theodora-ch08',
+        title: 'Chapter 8 · Rendezvous With Troy',
+        subtitle: '20-turn deadline',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Nuzzo within 20 turns. Loss if 20 turns pass or Theodora falls.',
+        bossTip: 'Nuzzo',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch08-objective', text: 'Defeat Nuzzo within 20 turns' },
+        ],
+      },
+      {
+        id: 'theodora-ch09',
+        title: 'Chapter 9 · To the Forbidden Land',
+        subtitle: 'EX-061 dungeon · Cataphract unlock',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Seize the epimenium. Loss if Theodora falls.',
+        bossTip: 'Digamma',
+        lootNote: 'Southern Passage Dungeon (EX-061) features 2 chests and a rest area.',
+        recruits: ['Long (guest)'],
+        steps: [
+          'Explore Southern Passage Dungeon (EX-061), which features 2 chests and a rest area.',
+          'Unlock the Cataphract class.',
+        ],
+        objectives: [
+          { id: 'theodora-ch09-objective', text: 'Seize the epimenium' },
+        ],
+      },
+      {
+        id: 'theodora-ch10',
+        title: 'Chapter 10 · The Queen and the Merchant',
+        subtitle: '12-turn orb contest',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: After 12 turns, hold more orbs than the enemy. Loss if the enemy holds more.',
+        bossTip: 'Talimun · Ursula · Simon · Fianna · Ludia',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch10-objective', text: 'After 12 turns, hold more orbs than the enemy' },
+        ],
+      },
+      {
+        id: 'theodora-ch11',
+        title: 'Chapter 11 · A Sudden Turn',
+        subtitle: 'The battle turns against Cai',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Cai. Loss if Theodora is defeated.',
+        bossTip: 'Ultand · Peter · Tialla · Cai',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch11-objective', text: 'Defeat Cai' },
+        ],
+      },
+      {
+        id: 'theodora-ch12',
+        title: 'Chapter 12 · The War of Zanbar',
+        subtitle: 'Final chapter of Part I',
+        overview: 'Theodora’s Path · Wolf Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Dyan. Loss if Theodora falls.',
+        bossTip: 'Klapka · Dyan',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'theodora-ch12-objective', text: 'Defeat Dyan' },
+        ],
+      },
+    ],
+  },
 ];
 
 export const lootRecords: Loot[] = [
@@ -91,6 +261,34 @@ export const lootRecords: Loot[] = [
     chapter: 'prologue-ch02',
     type: 'Key Items',
     source: 'Kunlun · pick up before speaking to Hong Hua',
+  },
+  {
+    id: 'theodora-ch06-hightown-missable',
+    name: 'Hightown coordinator · Bertrand vs. Yang Jie',
+    chapter: 'theodora-ch06',
+    type: 'Missables',
+    source: '4/6 at 18:00 · speak to the coordinator in Hightown for cutscenes and a match with Bertrand against Yang Jie.',
+  },
+  {
+    id: 'theodora-ch07-arena-hidden-npc',
+    name: 'Arena hidden NPC near Sofia and Peter',
+    chapter: 'theodora-ch07',
+    type: 'Missables',
+    source: 'On turn one, fast-travel to the Arena and walk right near Sofia and Peter.',
+  },
+  {
+    id: 'theodora-ch09-ex061-chest-1',
+    name: 'Chest 1 · Southern Passage Dungeon (EX-061)',
+    chapter: 'theodora-ch09',
+    type: 'Chests',
+    source: 'Theodora’s Path, Chapter 9 · contents not supplied in the notes.',
+  },
+  {
+    id: 'theodora-ch09-ex061-chest-2',
+    name: 'Chest 2 · Southern Passage Dungeon (EX-061)',
+    chapter: 'theodora-ch09',
+    type: 'Chests',
+    source: 'Theodora’s Path, Chapter 9 · contents not supplied in the notes.',
   },
 ];
 

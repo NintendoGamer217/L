@@ -25,7 +25,7 @@ function Shell() {
   return <div className="shell">
     <div className={`scene-backdrop ${scene}`} aria-hidden="true" />
     <header className="topbar">
-      <div className="brand"><span className="brand-mark"><Compass size={16} /></span><span>Fortune's Weave<br /><small style={{ opacity: .65, letterSpacing: '.22em' }}>FIELD COMPANION</small></span></div>
+      <div className="brand"><span className="brand-mark"><Compass size={16} /></span><span className="brand-copy"><span className="brand-title">Fortune's Weave: Tactical Companion</span><small className="brand-subtitle">Walkthrough, Chests &amp; Roster Tracker</small></span></div>
       <div className="top-meta">OFFLINE JOURNAL <span className="gold">·</span> LOCAL SAVE ACTIVE</div>
     </header>
     <Switch>
@@ -46,13 +46,13 @@ function PageIntro({ section, title, children, noticeTitle, notice }: { section:
 
 function ChaptersPage() {
   const [progress, setProgress] = useState<Progress>(() => readStored(progressKey, {}));
-  const [openActs, setOpenActs] = useState<Record<string, boolean>>({ 'prologue-descent': true });
+  const [openActs, setOpenActs] = useState<Record<string, boolean>>({ 'prologue-descent': true, 'theodora-path-wolf-part-i': true });
   useEffect(() => { localStorage.setItem(progressKey, JSON.stringify(progress)); }, [progress]);
   const total = acts.reduce((n, act) => n + act.chapters.length, 0);
   const completed = acts.flatMap((act) => act.chapters).filter((ch) => progress[ch.id]).length;
   const toggle = (key: string) => setProgress((prev) => ({ ...prev, [key]: !prev[key] }));
   return <main className="page">
-    <PageIntro section="Field notes · 01" title="Chapter journal" noticeTitle="Supplied Prologue notes." notice="This guide covers the two Prologue chapters included in your update. Add more verified chapters in src/data/gameData.ts.">A working route through the Prologue. Mark objectives as you go; your notes stay on this device.</PageIntro>
+    <PageIntro section="Field notes · 01" title="Chapter journal" noticeTitle="Theodora’s Path · Wolf Obelisk · Part I." notice="All 12 chapters are added. Chapter and objective checkboxes save on this device.">A working route through the Prologue and Theodora’s Path. Mark objectives as you go; your notes stay on this device.</PageIntro>
     <div className="panel stat-strip"><div><div className="stat-label">Chapter progress</div><div className="stat-number" data-testid="text-chapter-progress">{completed} <span style={{ color: '#77828d' }}>/ {total} marked complete</span></div></div><div style={{ width: '35%', minWidth: 90 }}><div className="progress-track"><div className="progress-fill" style={{ width: `${total ? completed / total * 100 : 0}%` }} /></div></div></div>
     {acts.map((act) => {
       const isOpen = openActs[act.id] ?? false;
@@ -64,8 +64,8 @@ function ChaptersPage() {
         {isOpen && act.chapters.map((ch) => <article className="chapter-row" key={ch.id}>
           <div className="chapter-title-line"><input aria-label={`Mark ${ch.title} complete`} type="checkbox" checked={Boolean(progress[ch.id])} onChange={() => toggle(ch.id)} data-testid={`checkbox-chapter-${ch.id}`} /><div className="chapter-title">{ch.title}</div><span className="badge">{ch.subtitle}</span></div>
           <div className="chapter-body">
-            <div><div className="subhead">Field objectives</div><div className="objective-list">{ch.objectives.map((obj) => <label className="objective" key={obj.id}><input type="checkbox" checked={Boolean(progress[obj.id])} onChange={() => toggle(obj.id)} data-testid={`checkbox-objective-${obj.id}`} /><span>{obj.text}</span></label>)}</div><div className="subhead" style={{ marginTop: 18 }}>Route notes</div><ol className="steps">{ch.steps.map((step, i) => <li className="step" key={step}><span className="mono gold">0{i + 1}</span><span>{step}</span></li>)}</ol></div>
-            <aside className="chapter-aside"><div className="subhead">Overview</div><p className="detail">{ch.overview}</p><div className="subhead">Win condition</div><p className="detail">{ch.winCondition}</p><div className="subhead">Boss note</div><p className="detail">{ch.bossTip}</p><div className="subhead">Recruitable</div><div className="detail">{ch.recruits.join(' · ')}</div><div className="subhead">Chests & missables</div><p className="detail">{ch.lootNote}</p></aside>
+            <div><div className="subhead">Field objectives</div><div className="objective-list">{ch.objectives.map((obj) => <label className="objective" key={obj.id}><input type="checkbox" checked={Boolean(progress[obj.id])} onChange={() => toggle(obj.id)} data-testid={`checkbox-objective-${obj.id}`} /><span>{obj.text}</span></label>)}</div>{ch.steps.length > 0 && <><div className="subhead" style={{ marginTop: 18 }}>Route notes</div><ol className="steps">{ch.steps.map((step, i) => <li className="step" key={step}><span className="mono gold">0{i + 1}</span><span>{step}</span></li>)}</ol></>}</div>
+            <aside className="chapter-aside"><div className="subhead">Overview</div><p className="detail">{ch.overview}</p><div className="subhead">Win condition</div><p className="detail">{ch.winCondition}</p><div className="subhead">Bosses & combat notes</div><p className="detail">{ch.bossTip}</p>{ch.recruits.length > 0 && <><div className="subhead">Joining units / guests</div><div className="detail">{ch.recruits.join(' · ')}</div></>}{ch.lootNote && <><div className="subhead">Chests & missables</div><p className="detail">{ch.lootNote}</p></>}</aside>
           </div>
         </article>)}
       </section>;
@@ -85,9 +85,9 @@ function LootPage() {
     `${item.name} ${item.source} ${chapterName[item.chapter]}`.toLowerCase().includes(query.toLowerCase())), [collected, onlyMissing, chapter, kind, query]);
   const count = lootRecords.filter((item) => collected[item.id]).length;
   const chapterNotes = acts.flatMap((act) => act.chapters).filter((ch) => ch.lootNote && (chapter === 'all' || chapter === ch.id));
-  const types: LootType[] = ['Weapons', 'Gold', 'Seals', 'Stat Boosters', 'Key Items'];
+  const types: LootType[] = ['Chests', 'Missables', 'Weapons', 'Gold', 'Seals', 'Stat Boosters', 'Key Items'];
   return <main className="page">
-    <PageIntro section="Field notes · 02" title="Chests & loot" noticeTitle="Prologue treasure." notice="Chapter 1 has no chests or missables. Chapter 2 includes Salamander +3 in Kunlun, before speaking to Hong Hua.">A pocket checklist for Prologue items. Collected marks are saved locally.</PageIntro>
+    <PageIntro section="Field notes · 02" title="Chests, loot & missables" noticeTitle="Theodora’s Path checklist." notice="Track the Hightown event in Chapter 6, the hidden Arena NPC in Chapter 7, and both Chapter 9 chests. Chest contents are not supplied in the notes.">Collected marks save on this device and remain separate from chapter objectives.</PageIntro>
     <div className="panel stat-strip"><div><div className="stat-label">Collected</div><div className="stat-number" data-testid="text-loot-progress">{count} <span style={{ color: '#77828d' }}>/ {lootRecords.length} records</span></div></div><div style={{ width: '38%', minWidth: 110 }}><div className="progress-track"><div className="progress-fill" style={{ width: `${count / lootRecords.length * 100}%` }} /></div></div></div>
     <div className="toolbar">
       <label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" /><input aria-label="Search loot" data-testid="input-search-loot" placeholder="Search name or location…" value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>
@@ -96,7 +96,7 @@ function LootPage() {
       <label className="check-line"><input type="checkbox" data-testid="checkbox-uncollected-only" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.target.checked)} /> Uncollected only</label>
     </div>
     <div className="loot-notes">{chapterNotes.map((ch) => <div className="panel loot-note" key={ch.id} data-testid={`note-loot-${ch.id}`}><div className="subhead">{ch.title}</div><p className="detail">{ch.lootNote}</p></div>)}</div>
-    {filtered.length ? <div className="loot-grid">{filtered.map((item) => <label className="panel loot-row" key={item.id} data-testid={`row-loot-${item.id}`}><input type="checkbox" aria-label={`Mark ${item.name} collected`} checked={Boolean(collected[item.id])} onChange={() => setCollected((p) => ({ ...p, [item.id]: !p[item.id] }))} data-testid={`checkbox-loot-${item.id}`} /><span className="loot-icon">{item.type === 'Weapons' ? <Shield size={16} /> : item.type === 'Gold' ? <Gem size={16} /> : item.type === 'Seals' ? <ScrollText size={16} /> : <Sparkles size={16} />}</span><span className="loot-info"><span className="loot-name">{item.name}</span><span className="loot-meta">{chapterName[item.chapter]} · {item.source}</span></span>{collected[item.id] && <Check className="gold" size={15} />}</label>)}</div> : <div className="panel empty"><strong>No matching field notes</strong>Try changing your search or filters.</div>}
+    {filtered.length ? <div className="loot-grid">{filtered.map((item) => <label className="panel loot-row" key={item.id} data-testid={`row-loot-${item.id}`}><input type="checkbox" aria-label={`Mark ${item.name} collected`} checked={Boolean(collected[item.id])} onChange={() => setCollected((p) => ({ ...p, [item.id]: !p[item.id] }))} data-testid={`checkbox-loot-${item.id}`} /><span className="loot-icon">{item.type === 'Chests' ? <Boxes size={16} /> : item.type === 'Missables' ? <ScrollText size={16} /> : item.type === 'Weapons' ? <Shield size={16} /> : item.type === 'Gold' ? <Gem size={16} /> : item.type === 'Seals' ? <ScrollText size={16} /> : <Sparkles size={16} />}</span><span className="loot-info"><span className="loot-name">{item.name}</span><span className="loot-meta">{chapterName[item.chapter]} · {item.source}</span></span>{collected[item.id] && <Check className="gold" size={15} />}</label>)}</div> : <div className="panel empty"><strong>No matching field notes</strong>Try changing your search or filters.</div>}
   </main>;
 }
 
@@ -166,7 +166,7 @@ function DatabasePage() {
     records: records.filter((record) => record.sortRank === value),
   })).filter((group) => group.records.length), [records]);
   return <main className="page">
-    <PageIntro section="Field notes · 03" title="The field index" noticeTitle="Recruitment, at a glance." notice="Support is shared across the save. Non-route recruits need a Gift first to unlock Recruit, then Support + Renown + the final condition.">Quick references for the Prologue roster, classes, and known items.</PageIntro>
+    <PageIntro section="Field notes · 03" title="Fortune's Weave: Tactical Companion" noticeTitle="Recruitment, at a glance." notice="Support is shared across the save. Non-route recruits need a Gift first to unlock Recruit, then Support + Renown + the final condition.">Walkthrough, Chests &amp; Roster Tracker · Quick references for characters, classes, and known items.</PageIntro>
     <div className="tabs" role="tablist" aria-label="Database category">{(['Characters', 'Classes', 'Weapons / Items'] as DatabaseTab[]).map((value) => <button type="button" role="tab" aria-selected={tab === value} className={`tab ${tab === value ? 'active' : ''}`} onClick={() => { setTab(value); setSort(value === 'Classes' ? 'rank' : 'alpha'); setFaction('all'); setTier('all'); }} data-testid={`tab-database-${value.toLowerCase().replace(/[^a-z]+/g, '-')}`} key={value}>{value}</button>)}</div>
     <div className="toolbar"><label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" aria-hidden="true" /><input aria-label={`Search ${tab}`} data-testid="input-search-database" placeholder={`Search ${tab.toLowerCase()}…`} value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>{isCharacterTab && <select className="select" aria-label="Filter by faction" data-testid="select-character-faction" value={faction} onChange={(e) => setFaction(e.target.value)}><option value="all">All factions</option>{factions.map((value) => <option key={value} value={value}>{value}</option>)}</select>}{isClassTab && <select className="select" aria-label="Filter by class tier" data-testid="select-class-tier" value={tier} onChange={(e) => setTier(e.target.value)}><option value="all">All tiers</option>{tiers.map((value) => <option key={value} value={value}>{value}</option>)}</select>}<select className="select" aria-label="Sort database" data-testid="select-database-sort" value={sort} onChange={(e) => setSort(e.target.value)}>{options.map(([v, label]) => <option key={v} value={v}>Sort: {label}</option>)}</select></div>
     {records.length ? isCharacterTab ? <div className="panel character-table" role="table" aria-label="Character roster">
