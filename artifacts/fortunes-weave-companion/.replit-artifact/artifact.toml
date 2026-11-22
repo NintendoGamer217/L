@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Fortune's Weave Companion"
+description = "A mobile-first companion for Fire Emblem: Fortune's Weave, with chapter walkthroughs, collectible tracking, sortable unit and item references, customizable fantasy scenes, and procedural ambient audio."
+version = "1.0.0"
+id = "artifacts/fortunes-weave-companion"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18806
+
+[services.development]
+run = "pnpm --filter @workspace/fortunes-weave-companion run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fortunes-weave-companion", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/fortunes-weave-companion/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18806"
+BASE_PATH = "/"
