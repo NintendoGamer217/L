@@ -13,7 +13,7 @@ export type Chapter = {
   objectives: Objective[];
 };
 export type Act = { id: string; title: string; chapters: Chapter[] };
-export type LootType = 'Chests' | 'Missables' | 'Weapons' | 'Gold' | 'Seals' | 'Stat Boosters' | 'Key Items';
+export type LootType = 'Chests' | 'Missables' | 'Events' | 'Weapons' | 'Gold' | 'Seals' | 'Stat Boosters' | 'Key Items';
 export type Loot = { id: string; name: string; chapter: string; type: LootType; source: string };
 export type Character = {
   id: string;
@@ -252,6 +252,172 @@ export const acts: Act[] = [
       },
     ],
   },
+  {
+    id: 'leda-path-eagle-part-i',
+    title: 'Leda’s Path · Eagle Obelisk · Part I',
+    chapters: [
+      {
+        id: 'leda-ch01',
+        title: 'Chapter 1 · The Vengeful Dancer',
+        subtitle: 'Leda, Buccar, Sirocco, and Mu join',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Rout the enemy. Loss if Leda is defeated.',
+        bossTip: 'Bjor',
+        recruits: ['Leda', 'Buccar', 'Sirocco', 'Mu'],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch01-objective', text: 'Rout the enemy' },
+        ],
+      },
+      {
+        id: 'leda-ch02',
+        title: 'Chapter 2 · Battle at Coris Mine',
+        subtitle: 'Three dungeon chests · Mini Bow · Iron Fan',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Balboa. Loss if Leda is defeated.',
+        bossTip: 'Balboa · drops Lakshashi’s Iron Fan (counts as a sword)',
+        lootNote: 'Find 3 dungeon chests before the boss stone. During battle, defeat the archer near the chest for a Chest Key and loot the Mini Bow before defeating Balboa.',
+        recruits: [],
+        steps: ['Open the 3 dungeon chests before the boss stone.', 'During battle, defeat the archer near the chest for a Chest Key; use it to loot the Mini Bow before defeating Balboa.'],
+        objectives: [
+          { id: 'leda-ch02-objective', text: 'Defeat Balboa' },
+        ],
+      },
+      {
+        id: 'leda-ch03',
+        title: 'Chapter 3 · The Rose of Caelus',
+        subtitle: 'Keep 13 blue flames active after 10 turns',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Have at least 13 blue flames active after 10 turns. Loss if fewer than 13 remain after 10 turns.',
+        bossTip: 'No boss supplied in the notes; Olympia joins.',
+        recruits: ['Olympia (joins)'],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch03-objective', text: 'Have at least 13 blue flames active after 10 turns' },
+        ],
+      },
+      {
+        id: 'leda-ch04',
+        title: 'Chapter 4 · The Indelible Past',
+        subtitle: 'Lowtown gift event · Perform Quests unlock',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Have Leda escape the map. Loss if Leda is defeated.',
+        bossTip: 'Lechner',
+        lootNote: 'Event reward: receive the Red-Rose Bouquet gift during the Lowtown scenes. Unlocks Leda’s unique Perform Quests in towns and taverns for Renown, gold, Blaze Arts, and secret map spots.',
+        recruits: [],
+        steps: ['Leda’s unique Perform Quests unlock in towns and taverns, offering Renown, gold, Blaze Arts, and secret map spots.'],
+        objectives: [
+          { id: 'leda-ch04-objective', text: 'Have Leda escape the map' },
+          { id: 'leda-ch04-perform-quests', text: 'Unlock Leda’s unique Perform Quests' },
+        ],
+      },
+      {
+        id: 'leda-ch05',
+        title: 'Chapter 5 · Women at Battle',
+        subtitle: 'Guests join the battle',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Jasmine. Loss if Leda, Orchel, or Anatolia falls.',
+        bossTip: 'Jasmine',
+        recruits: ['Orchel (guest)', 'Diego (guest)', 'Anatolia (guest)', 'Sha Lan (guest)'],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch05-objective', text: 'Defeat Jasmine' },
+        ],
+      },
+      {
+        id: 'leda-ch06',
+        title: 'Chapter 6 · The Soaring Maiden',
+        subtitle: 'Guests join the battle',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Alexandra. Loss if Leda, Dietrich, or Theodora falls.',
+        bossTip: 'Alexandra',
+        recruits: ['Dietrich (guest)', 'Fabio (guest)', 'Theodora (guest)', 'Bonaventure (guest)'],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch06-objective', text: 'Defeat Alexandra' },
+        ],
+      },
+      {
+        id: 'leda-ch07',
+        title: 'Chapter 7 · Rose of Retribution',
+        subtitle: 'Two named bosses',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Lechner. Loss if Leda is defeated.',
+        bossTip: 'Maria · Lechner',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch07-objective', text: 'Defeat Lechner' },
+        ],
+      },
+      {
+        id: 'leda-ch08',
+        title: 'Chapter 8 · Shape of the Conspiracy',
+        subtitle: 'Guests join the battle',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Inyoni. Loss if Leda, Cai, or Talimun falls.',
+        bossTip: 'Hong Hua · Inyoni',
+        recruits: ['Cai (guest)', 'Tialla (guest)', 'Talimun (guest)', 'Ursula (guest)'],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch08-objective', text: 'Defeat Inyoni' },
+        ],
+      },
+      {
+        id: 'leda-ch09',
+        title: 'Chapter 9 · Discordance',
+        subtitle: 'Route-exclusive Dancer class request',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Cai. Loss if Leda is defeated.',
+        bossTip: 'Buccar · Demonic Beast · Ultand · Peter · Tialla · Cai',
+        recruits: [],
+        steps: ['Route exclusive: complete the “Great Dancer’s Successor” request to unlock the Dancer class.'],
+        objectives: [
+          { id: 'leda-ch09-objective', text: 'Defeat Cai' },
+          { id: 'leda-ch09-dancer-request', text: 'Complete “Great Dancer’s Successor” to unlock the Dancer class' },
+        ],
+      },
+      {
+        id: 'leda-ch10',
+        title: 'Chapter 10 · A Father’s Request and a Daughter’s Wish',
+        subtitle: 'Defeat Theodora',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat Theodora. Loss if Leda is defeated.',
+        bossTip: 'Tobias · Bonaventure · Theodora',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch10-objective', text: 'Defeat Theodora' },
+        ],
+      },
+      {
+        id: 'leda-ch11',
+        title: 'Chapter 11 · Banquet of the Risen Dead',
+        subtitle: 'Survive or rout the ambushing forces',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Survive / rout the ambushing forces. Loss if Leda is defeated.',
+        bossTip: 'Not supplied in the notes.',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch11-objective', text: 'Survive / rout the ambushing forces' },
+        ],
+      },
+      {
+        id: 'leda-ch12',
+        title: 'Chapter 12 · Revenge’s End',
+        subtitle: 'Conclude Part I',
+        overview: 'Leda’s Path · Eagle Obelisk · Part I.',
+        winCondition: 'Objective: Defeat the conspiracy’s mastermind to conclude Part I. Loss if Leda is defeated.',
+        bossTip: 'Conspiracy’s mastermind (name not supplied in the notes).',
+        recruits: [],
+        steps: [],
+        objectives: [
+          { id: 'leda-ch12-objective', text: 'Defeat the conspiracy’s mastermind to conclude Part I' },
+        ],
+      },
+    ],
+  },
 ];
 
 export const lootRecords: Loot[] = [
@@ -289,6 +455,55 @@ export const lootRecords: Loot[] = [
     chapter: 'theodora-ch09',
     type: 'Chests',
     source: 'Theodora’s Path, Chapter 9 · contents not supplied in the notes.',
+  },
+  {
+    id: 'leda-ch02-corismine-chest-1',
+    name: 'Chest 1 · Coris Mine dungeon',
+    chapter: 'leda-ch02',
+    type: 'Chests',
+    source: 'Chapter 2 · before the boss stone.',
+  },
+  {
+    id: 'leda-ch02-corismine-chest-2',
+    name: 'Chest 2 · Coris Mine dungeon',
+    chapter: 'leda-ch02',
+    type: 'Chests',
+    source: 'Chapter 2 · before the boss stone.',
+  },
+  {
+    id: 'leda-ch02-corismine-chest-3',
+    name: 'Chest 3 · Coris Mine dungeon',
+    chapter: 'leda-ch02',
+    type: 'Chests',
+    source: 'Chapter 2 · before the boss stone.',
+  },
+  {
+    id: 'leda-ch02-chest-key',
+    name: 'Chest Key',
+    chapter: 'leda-ch02',
+    type: 'Key Items',
+    source: 'Battle · defeat the archer near the chest; get the key before defeating Balboa.',
+  },
+  {
+    id: 'leda-ch02-mini-bow',
+    name: 'Mini Bow',
+    chapter: 'leda-ch02',
+    type: 'Weapons',
+    source: 'Battle chest · use the Chest Key before defeating Balboa.',
+  },
+  {
+    id: 'leda-ch02-iron-fan',
+    name: 'Lakshashi’s Iron Fan',
+    chapter: 'leda-ch02',
+    type: 'Weapons',
+    source: 'Balboa drop · counts as a sword.',
+  },
+  {
+    id: 'leda-ch04-red-rose-bouquet',
+    name: 'Red-Rose Bouquet',
+    chapter: 'leda-ch04',
+    type: 'Events',
+    source: 'Chapter 4 · receive the gift during the Lowtown scenes.',
   },
 ];
 

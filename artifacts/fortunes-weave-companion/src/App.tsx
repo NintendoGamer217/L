@@ -46,13 +46,13 @@ function PageIntro({ section, title, children, noticeTitle, notice }: { section:
 
 function ChaptersPage() {
   const [progress, setProgress] = useState<Progress>(() => readStored(progressKey, {}));
-  const [openActs, setOpenActs] = useState<Record<string, boolean>>({ 'prologue-descent': true, 'theodora-path-wolf-part-i': true });
+  const [openActs, setOpenActs] = useState<Record<string, boolean>>({ 'prologue-descent': true, 'theodora-path-wolf-part-i': true, 'leda-path-eagle-part-i': true });
   useEffect(() => { localStorage.setItem(progressKey, JSON.stringify(progress)); }, [progress]);
   const total = acts.reduce((n, act) => n + act.chapters.length, 0);
   const completed = acts.flatMap((act) => act.chapters).filter((ch) => progress[ch.id]).length;
   const toggle = (key: string) => setProgress((prev) => ({ ...prev, [key]: !prev[key] }));
   return <main className="page">
-    <PageIntro section="Field notes · 01" title="Chapter journal" noticeTitle="Theodora’s Path · Wolf Obelisk · Part I." notice="All 12 chapters are added. Chapter and objective checkboxes save on this device.">A working route through the Prologue and Theodora’s Path. Mark objectives as you go; your notes stay on this device.</PageIntro>
+    <PageIntro section="Field notes · 01" title="Chapter journal" noticeTitle="Part I · route chapters." notice="Theodora’s Path and Leda’s Path each include 12 chapters. Chapter and objective checkboxes save on this device.">A working route through the Prologue, Theodora’s Path, and Leda’s Path. Mark objectives as you go; your notes stay on this device.</PageIntro>
     <div className="panel stat-strip"><div><div className="stat-label">Chapter progress</div><div className="stat-number" data-testid="text-chapter-progress">{completed} <span style={{ color: '#77828d' }}>/ {total} marked complete</span></div></div><div style={{ width: '35%', minWidth: 90 }}><div className="progress-track"><div className="progress-fill" style={{ width: `${total ? completed / total * 100 : 0}%` }} /></div></div></div>
     {acts.map((act) => {
       const isOpen = openActs[act.id] ?? false;
@@ -85,9 +85,9 @@ function LootPage() {
     `${item.name} ${item.source} ${chapterName[item.chapter]}`.toLowerCase().includes(query.toLowerCase())), [collected, onlyMissing, chapter, kind, query]);
   const count = lootRecords.filter((item) => collected[item.id]).length;
   const chapterNotes = acts.flatMap((act) => act.chapters).filter((ch) => ch.lootNote && (chapter === 'all' || chapter === ch.id));
-  const types: LootType[] = ['Chests', 'Missables', 'Weapons', 'Gold', 'Seals', 'Stat Boosters', 'Key Items'];
+  const types: LootType[] = ['Chests', 'Missables', 'Events', 'Weapons', 'Gold', 'Seals', 'Stat Boosters', 'Key Items'];
   return <main className="page">
-    <PageIntro section="Field notes · 02" title="Chests, loot & missables" noticeTitle="Theodora’s Path checklist." notice="Track the Hightown event in Chapter 6, the hidden Arena NPC in Chapter 7, and both Chapter 9 chests. Chest contents are not supplied in the notes.">Collected marks save on this device and remain separate from chapter objectives.</PageIntro>
+    <PageIntro section="Field notes · 02" title="Chests, loot & missables" noticeTitle="Route checklist." notice="Leda’s Chapter 2 includes 3 dungeon chests, a Chest Key, a Mini Bow, and Balboa’s Iron Fan. Chapter 4 has the Lowtown gift event. Theodora’s missables and EX-061 chests remain included.">Collected marks save on this device and remain separate from chapter objectives.</PageIntro>
     <div className="panel stat-strip"><div><div className="stat-label">Collected</div><div className="stat-number" data-testid="text-loot-progress">{count} <span style={{ color: '#77828d' }}>/ {lootRecords.length} records</span></div></div><div style={{ width: '38%', minWidth: 110 }}><div className="progress-track"><div className="progress-fill" style={{ width: `${count / lootRecords.length * 100}%` }} /></div></div></div>
     <div className="toolbar">
       <label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" /><input aria-label="Search loot" data-testid="input-search-loot" placeholder="Search name or location…" value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>
