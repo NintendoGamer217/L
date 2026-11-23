@@ -108,13 +108,29 @@ type DatabaseRecord = {
   note: string;
   faction?: string;
   startingClass?: string;
-  chapter?: string;
-  recruitment?: string;
-  sortChapter?: number;
+  recruitmentByPath?: RosterCharacter['recruitmentByPath'];
+  sharedRecruitmentNote?: string;
+  postPartIRecruitment?: string;
   sortRank?: string;
   certificationRequirements?: string;
   masterySkill?: string;
 };
+
+type RosterCharacter = {
+  id: string;
+  name: string;
+  faction: string;
+  startingClass: string;
+  recruitmentByPath: {
+    Cai: string;
+    Dietrich: string;
+    Theodora: string;
+    Leda: string;
+  };
+  sharedRecruitmentNote?: string;
+  postPartIRecruitment?: string;
+};
+const routeKeys = ['Cai', 'Dietrich', 'Theodora', 'Leda'] as const;
 
 function DatabasePage() {
   const [tab, setTab] = useState<DatabaseTab>('Characters');
@@ -123,22 +139,27 @@ function DatabasePage() {
   const [faction, setFaction] = useState('all');
   const [tier, setTier] = useState('all');
   const tiers: ClassRecord['tier'][] = ['Base', 'Beginner', 'Specialty', 'Advanced', 'Master', 'Divine'];
-  const factions = [...new Set(characters.map((character) => character.faction))].sort((a, b) => a.localeCompare(b));
-  const options: [string, string][] = tab === 'Characters' ? [['alpha', 'Alphabetical'], ['chapter', 'Chapter unlocked'], ['faction', 'Faction']] : tab === 'Classes' ? [['alpha', 'Alphabetical'], ['rank', 'Tier']] : [['alpha', 'Alphabetical'], ['rank', 'Rank / tier']];
+  const roster: RosterCharacter[] = characters;
+  const factions = [...new Set(roster.map((character) => character.faction))].sort((a, b) => a.localeCompare(b));
+  const options: [string, string][] = tab === 'Characters' ? [['alpha', 'Alphabetical'], ['faction', 'Faction'], ['class', 'Starting class']] : tab === 'Classes' ? [['alpha', 'Alphabetical'], ['rank', 'Tier']] : [['alpha', 'Alphabetical'], ['rank', 'Rank / tier']];
   const records = useMemo<DatabaseRecord[]>(() => {
     let list: DatabaseRecord[] =
-      tab === 'Characters' ? characters
+      tab === 'Characters' ? roster
         .filter((character) => faction === 'all' || character.faction === faction)
         .map((character) => ({
           id: character.id,
           name: character.name,
-          sub: character.chapter,
-          note: character.recruitment,
+          sub: character.startingClass,
+          note: [
+            ...routeKeys.map((path) => character.recruitmentByPath[path]),
+            character.sharedRecruitmentNote ?? '',
+            character.postPartIRecruitment ?? '',
+          ].join(' '),
           faction: character.faction,
           startingClass: character.startingClass,
-          chapter: character.chapter,
-          recruitment: character.recruitment,
-          sortChapter: Number.parseInt(character.chapter.match(/\d+/)?.[0] ?? '', 10) || 999,
+          recruitmentByPath: character.recruitmentByPath,
+          sharedRecruitmentNote: character.sharedRecruitmentNote,
+          postPartIRecruitment: character.postPartIRecruitment,
         })) :
       tab === 'Classes' ? classes
         .filter((record) => tier === 'all' || record.tier === tier)
@@ -153,8 +174,8 @@ function DatabasePage() {
         })) :
       items.map((record) => ({ id: record.id, name: record.name, sub: `${record.kind} · ${record.rank}`, note: record.note, sortRank: record.rank }));
     list = list.filter((record) => `${record.name} ${record.sub} ${record.note} ${record.faction ?? ''} ${record.startingClass ?? ''} ${record.certificationRequirements ?? ''} ${record.masterySkill ?? ''}`.toLowerCase().includes(query.toLowerCase()));
-    if (sort === 'chapter') list.sort((a, b) => (a.sortChapter ?? 999) - (b.sortChapter ?? 999) || a.name.localeCompare(b.name));
-    else if (sort === 'faction') list.sort((a, b) => (a.faction ?? '').localeCompare(b.faction ?? '') || a.name.localeCompare(b.name));
+    if (sort === 'faction') list.sort((a, b) => (a.faction ?? '').localeCompare(b.faction ?? '') || a.name.localeCompare(b.name));
+    else if (sort === 'class') list.sort((a, b) => (a.startingClass ?? '').localeCompare(b.startingClass ?? '') || a.name.localeCompare(b.name));
     else if (sort === 'rank') list.sort((a, b) => (a.sortRank ?? '').localeCompare(b.sortRank ?? '') || a.name.localeCompare(b.name));
     else list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
@@ -166,18 +187,26 @@ function DatabasePage() {
     records: records.filter((record) => record.sortRank === value),
   })).filter((group) => group.records.length), [records]);
   return <main className="page">
-    <PageIntro section="Field notes · 03" title="Fortune's Weave: Tactical Companion" noticeTitle="Recruitment, at a glance." notice="Support is shared across the save. Non-route recruits need a Gift first to unlock Recruit, then Support + Renown + the final condition.">Walkthrough, Chests &amp; Roster Tracker · Quick references for characters, classes, and known items.</PageIntro>
+    <PageIntro section="Field notes · 03" title="Fortune's Weave: Tactical Companion" noticeTitle="Reading recruitment notes." notice="S = Support · R = Renown. Conditions are listed by path; shared and Part II/III requirements appear below each character’s route entries.">Walkthrough, Chests &amp; Roster Tracker · Route-by-route recruitment, classes, and known items.</PageIntro>
     <div className="tabs" role="tablist" aria-label="Database category">{(['Characters', 'Classes', 'Weapons / Items'] as DatabaseTab[]).map((value) => <button type="button" role="tab" aria-selected={tab === value} className={`tab ${tab === value ? 'active' : ''}`} onClick={() => { setTab(value); setSort(value === 'Classes' ? 'rank' : 'alpha'); setFaction('all'); setTier('all'); }} data-testid={`tab-database-${value.toLowerCase().replace(/[^a-z]+/g, '-')}`} key={value}>{value}</button>)}</div>
     <div className="toolbar"><label className="search" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Search size={15} color="#8c969c" aria-hidden="true" /><input aria-label={`Search ${tab}`} data-testid="input-search-database" placeholder={`Search ${tab.toLowerCase()}…`} value={query} onChange={(e) => setQuery(e.target.value)} style={{ background: 'transparent', border: 0, outline: 0, color: 'inherit', width: '100%' }} /></label>{isCharacterTab && <select className="select" aria-label="Filter by faction" data-testid="select-character-faction" value={faction} onChange={(e) => setFaction(e.target.value)}><option value="all">All factions</option>{factions.map((value) => <option key={value} value={value}>{value}</option>)}</select>}{isClassTab && <select className="select" aria-label="Filter by class tier" data-testid="select-class-tier" value={tier} onChange={(e) => setTier(e.target.value)}><option value="all">All tiers</option>{tiers.map((value) => <option key={value} value={value}>{value}</option>)}</select>}<select className="select" aria-label="Sort database" data-testid="select-database-sort" value={sort} onChange={(e) => setSort(e.target.value)}>{options.map(([v, label]) => <option key={v} value={v}>Sort: {label}</option>)}</select></div>
-    {records.length ? isCharacterTab ? <div className="panel character-table" role="table" aria-label="Character roster">
-      <div className="character-grid character-table-head" role="row"><div role="columnheader">Character</div><div role="columnheader">Faction</div><div role="columnheader">Starting class</div><div role="columnheader">Chapter unlocked</div><div role="columnheader">Recruitment</div></div>
-      {records.map((record) => <div className="character-grid character-table-row" key={record.id} role="row" data-testid={`row-database-${record.id}`}>
-        <div className="character-cell character-name-cell" role="cell" data-label="Character"><span className="initial">{record.name.slice(0, 1)}</span><span className="character-name">{record.name}</span></div>
-        <div className="character-cell" role="cell" data-label="Faction">{record.faction}</div>
-        <div className="character-cell" role="cell" data-label="Starting class">{record.startingClass}</div>
-        <div className="character-cell" role="cell" data-label="Chapter unlocked">{record.chapter}</div>
-        <div className="character-cell recruitment-cell" role="cell" data-label="Recruitment">{record.recruitment}</div>
-      </div>)}
+    {records.length ? isCharacterTab ? <div className="roster-list" aria-label="Character roster" data-testid="list-character-roster">
+      {records.map((record) => <article className="panel roster-card" key={record.id} data-testid={`row-database-${record.id}`}>
+        <header className="roster-heading">
+          <span className="initial">{record.name.slice(0, 1)}</span>
+          <div className="roster-identity"><h2 className="character-name">{record.name}</h2><div className="roster-tags"><span>{record.faction}</span><span>{record.startingClass}</span></div></div>
+        </header>
+        <div className="route-grid" aria-label={`${record.name} recruitment by route`}>
+          {routeKeys.map((path) => <section className="route-entry" key={path} data-testid={`recruitment-${record.id}-${path.toLowerCase()}`}>
+            <h3 className="route-label"><span className={`route-seal route-${path.toLowerCase()}`}>{path.slice(0, 1)}</span>{path}<span className="route-caption">route</span></h3>
+            <p>{record.recruitmentByPath?.[path] || 'No route condition listed.'}</p>
+          </section>)}
+        </div>
+        {(record.sharedRecruitmentNote || record.postPartIRecruitment) && <footer className="roster-notes">
+          {record.sharedRecruitmentNote && <div className="roster-note"><span className="subhead">Shared condition</span><p>{record.sharedRecruitmentNote}</p></div>}
+          {record.postPartIRecruitment && <div className="roster-note later-note"><span className="subhead">Later recruitment · Part II / III</span><p>{record.postPartIRecruitment}</p></div>}
+        </footer>}
+      </article>)}
     </div> : isClassTab ? <div className={`class-index ${sort === 'rank' ? 'tier-grouped' : ''}`} data-testid="list-class-records">{(sort === 'rank' ? classGroups.flatMap((group) => [{ tierHeader: group.tier, record: null as DatabaseRecord | null }, ...group.records.map((record) => ({ tierHeader: null, record }))]) : records.map((record) => ({ tierHeader: null, record }))).map(({ tierHeader, record }) => tierHeader ? <h2 className="class-tier-heading" key={`tier-${tierHeader}`} data-testid={`heading-class-tier-${tierHeader.toLowerCase()}`}>{tierHeader}<span>{classGroups.find((group) => group.tier === tierHeader)?.records.length} classes</span></h2> : record && <article className="panel class-record" key={record.id} data-testid={`row-database-${record.id}`}><div className="class-record-heading"><div className="initial">{record.name.slice(0, 1)}</div><div className="db-main"><div className="db-name">{record.name}</div><div className="db-sub">{record.sub} tier</div></div></div><div className="class-detail"><span className="subhead">Certification requirements</span><p className="detail">{record.certificationRequirements}</p></div><div className="class-detail"><span className="subhead">Mastery skill</span><p className="detail">{record.masterySkill}</p></div></article>)}</div> : <div className="panel db-list" role="list">{records.map((record) => <div className="db-item" key={record.id} role="listitem" data-testid={`row-database-${record.id}`}><div className="initial">{record.name.slice(0, 1)}</div><div className="db-main"><div className="db-name">{record.name}</div><div className="db-sub">{record.note}</div></div><div className="db-right">{record.sub}</div></div>)}</div> : <div className="panel empty" data-testid="status-database-empty"><strong>No entries found</strong>Try another search or filter.</div>}
   </main>;
 }

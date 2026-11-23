@@ -58,3 +58,51 @@ button,input,select{font:inherit}button{cursor:pointer}.serif{font-family:var(--
 .tier-grouped{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tier-grouped .class-tier-heading{margin-top:20px}
 @media(max-width:650px){.class-index,.tier-grouped{grid-template-columns:minmax(0,1fr)}.class-tier-heading{grid-column:1}}
+
+/* Route-first roster: each character is a compact field card with four equally
+   legible recruitment paths, rather than a wide table that hides conditions. */
+.roster-list{display:grid;gap:12px;margin-top:17px}
+.roster-card{overflow:hidden}
+.roster-heading{display:flex;align-items:center;gap:13px;padding:15px 17px 13px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,rgba(174,145,79,.08),transparent 55%)}
+.roster-identity{min-width:0;flex:1}
+.roster-identity .character-name{font-size:21px;margin:0}
+.roster-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.roster-tags span{color:#aeb5b4;font:9px var(--app-font-mono);letter-spacing:.045em;border:1px solid rgba(199,185,146,.18);padding:4px 7px;border-radius:2px}
+.route-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.route-entry{min-width:0;padding:13px 14px 15px;border-right:1px solid var(--line)}
+.route-entry:last-child{border-right:0}
+.route-label{display:flex;align-items:center;gap:7px;margin:0 0 9px;color:#e4d8bb;font:15px var(--app-font-serif)}
+.route-seal{width:20px;height:20px;display:grid;place-items:center;border:1px solid #776541;color:#d2b875;font:9px var(--app-font-mono);transform:rotate(45deg);margin:0 3px 0 2px}
+.route-seal::first-letter{transform:rotate(-45deg)}
+.route-caption{color:#7e8a91;font:8px var(--app-font-mono);text-transform:uppercase;letter-spacing:.1em}
+.route-entry p,.roster-note p{color:#c4c6be;font-size:11px;line-height:1.65;margin:0;overflow-wrap:anywhere}
+.roster-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line);background:rgba(12,18,25,.3)}
+.roster-note{padding:12px 15px}
+.roster-note+.roster-note{border-left:1px solid var(--line)}
+.roster-note .subhead{display:block;margin-bottom:6px}
+.roster-note p{color:#b8b9ae}
+.later-note .subhead{color:#a8b6a7}
+.character-name-cell .character-name{margin:0}
+.roster-card{animation:roster-in .32s ease both}
+.roster-card:nth-child(2){animation-delay:35ms}
+.roster-card:nth-child(3){animation-delay:70ms}
+@keyframes roster-in{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:850px){.route-entry{padding:12px 11px}.route-label{font-size:14px}.route-entry p,.roster-note p{font-size:10px}}
+@media(max-width:650px){
+  .roster-heading{padding:13px 13px 11px}
+  .roster-identity .character-name{font-size:19px}
+  .route-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .route-entry{padding:12px;border-bottom:1px solid var(--line)}
+  .route-entry:nth-child(2){border-right:0}
+  .route-entry:nth-child(n+3){border-bottom:0}
+  .route-entry:nth-child(4){border-right:0}
+  .route-label{font-size:15px}
+  .route-entry p,.roster-note p{font-size:11px}
+  .roster-notes{grid-template-columns:1fr}
+  .roster-note+.roster-note{border-left:0;border-top:1px solid var(--line)}
+}
+@media(max-width:390px){
+  .route-grid{grid-template-columns:1fr}
+  .route-entry,.route-entry:nth-child(2),.route-entry:nth-child(n+3),.route-entry:nth-child(4){border-right:0;border-bottom:1px solid var(--line)}
+  .route-entry:last-child{border-bottom:0}
+}

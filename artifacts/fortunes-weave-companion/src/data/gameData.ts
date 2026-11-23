@@ -15,13 +15,15 @@ export type Chapter = {
 export type Act = { id: string; title: string; chapters: Chapter[] };
 export type LootType = 'Chests' | 'Missables' | 'Events' | 'Weapons' | 'Gold' | 'Seals' | 'Stat Boosters' | 'Key Items';
 export type Loot = { id: string; name: string; chapter: string; type: LootType; source: string };
+export type FlameLordPath = 'Cai' | 'Dietrich' | 'Theodora' | 'Leda';
 export type Character = {
   id: string;
   name: string;
   faction: string;
   startingClass: string;
-  chapter: string;
-  recruitment: string;
+  recruitmentByPath: Record<FlameLordPath, string>;
+  sharedRecruitmentNote?: string;
+  postPartIRecruitment?: string;
 };
 export type ClassTier = 'Base' | 'Beginner' | 'Specialty' | 'Advanced' | 'Master' | 'Divine';
 export type ClassRecord = {
@@ -508,117 +510,141 @@ export const lootRecords: Loot[] = [
 ];
 
 type RosterMember = Omit<Character, 'id' | 'faction'>;
-const sharedNonRouteRecruit = 'Give a Gift first to unlock the Recruit prompt; then reach the required Support + Renown and meet the final condition.';
-const sharedClanRecruit = 'Give a Gift to unlock Recruit; reach required Support Lv. (2–3) and Renown Lv. (varies by Flame Lord); complete a Personal Request or Negotiation.';
+type RecruitmentNotes = Pick<Character, 'sharedRecruitmentNote' | 'postPartIRecruitment'>;
+const unavailableInPartI = 'Unavailable in Part I.';
+const guestOnlyInPartI = 'Guest only in Part I.';
+const noPartIRecruitmentListed = 'No Part I recruitment listed in the supplied notes.';
+const member = (
+  name: string,
+  startingClass: string,
+  cai: string,
+  dietrich: string,
+  theodora: string,
+  leda: string,
+  notes: RecruitmentNotes = {},
+): RosterMember => ({
+  name,
+  startingClass,
+  recruitmentByPath: { Cai: cai, Dietrich: dietrich, Theodora: theodora, Leda: leda },
+  ...notes,
+});
 const rosterGroups: { faction: string; members: RosterMember[] }[] = [
   {
     faction: "Promised One's Army (Prologue Core)",
     members: [
-      { name: 'Eshmel (Avatar)', startingClass: 'Guardian (Prologue) / Commoner (Main Story)', chapter: 'Prologue · Ch. 1', recruitment: 'Prologue Ch. 1 · Automatic.' },
-      { name: 'Hong Hua', startingClass: 'Ovate', chapter: 'Prologue · Ch. 1', recruitment: 'Prologue Ch. 1 · Automatic.' },
-      { name: 'Troy', startingClass: 'War Monk', chapter: 'Prologue · Ch. 2', recruitment: 'Prologue Ch. 2 · Automatic.' },
+      member('Eshmel (Avatar)', 'Guardian (Prologue) / Commoner (Main Story)', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)'),
+      member('Hong Hua', 'Ovate', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)', 'Prologue Ch. 1 (All paths)'),
+      member('Troy', 'War Monk', 'Prologue Ch. 2 (All paths)', 'Prologue Ch. 2 (All paths)', 'Prologue Ch. 2 (All paths)', 'Prologue Ch. 2 (All paths)'),
     ],
   },
   {
     faction: 'Ribeira Winds (Cai’s Path · Fox Obelisk)',
     members: [
-      { name: 'Cai', startingClass: 'Commoner (Fox Obelisk)', chapter: 'Cai’s Path · Ch. 1', recruitment: 'Cai’s Path: Ch. 1. Other paths: guest in Ch. 4/8 Qualifiers; clear Cai’s Paralogue to keep.' },
-      { name: 'Tialla', startingClass: 'Hunter', chapter: 'Cai’s Path · Ch. 1', recruitment: 'Cai’s Path: Ch. 1 automatic. Other paths: clear Cai’s Paralogue, reach Support Lv. 3 and Renown Lv. 9–10, and pay 3,000G.' },
-      { name: 'Peter', startingClass: 'Soldier', chapter: 'Cai’s Path', recruitment: 'Cai’s Path: Automatic. Other paths: unrecruitable in Part I.' },
-      { name: 'Ultand', startingClass: 'Diviner', chapter: 'Cai’s Path', recruitment: `Cai’s Path: Automatic. Other paths: ${sharedNonRouteRecruit} Support Lv. 3, Renown Lv. 5–8, and complete Ultand’s Request.` },
+      member('Cai', 'Commoner', 'Ch. 1 (Auto)', 'Clear Cai’s Paralogue.', 'Clear Cai’s Paralogue.', 'Guest in Part I, Ch. 8; clear Cai’s Paralogue.'),
+      member('Tialla', 'Commoner (Diviner/Priest path)', 'Ch. 1 (Auto)', 'Ch. 11+ (3S, 9R, clear Cai’s Paralogue, 3,000G)', 'Ch. 12 (3S, 10R, clear Cai’s Paralogue, 3,000G)', 'Ch. 11+ (3S, 8R, clear Cai’s Paralogue, 3,000G; guest in Ch. 8)'),
+      member('Peter', 'Commoner (Hunter/Archer path)', 'Ch. 1 (Auto)', 'Ch. 7+ (3S, 8R, give 1 Phantom Ginji)', 'Ch. 8+ (3S, 7R, give 1 Phantom Ginji)', 'Ch. 9+ (3S, 10R, give 1 Phantom Ginji)'),
+      member('Ultand', 'Diviner', 'Ch. 6 (Auto)', 'Ch. 5+ (3S, 5R, give Mother’s Gift)', 'Ch. 7+ (3S, 6R, give Mother’s Gift)', 'Ch. 8+ (3S, 8R, give Mother’s Gift)'),
     ],
   },
   {
     faction: 'House Lamine (Dietrich’s Path · Lion Obelisk)',
     members: [
-      { name: 'Dietrich', startingClass: 'Commoner (Lion Obelisk)', chapter: 'Dietrich’s Path · Ch. 1', recruitment: 'Dietrich’s Path: Ch. 1. Other paths: guest in Ch. 5/6/7 Qualifiers; clear Dietrich’s Paralogue to keep.' },
-      { name: 'Fabio', startingClass: 'Soldier', chapter: 'Dietrich’s Path', recruitment: 'Dietrich’s Path: Automatic. Other paths: unrecruitable in Part I.' },
-      { name: 'Esmeralda', startingClass: 'Diviner', chapter: 'Dietrich’s Path', recruitment: 'Dietrich’s Path: Automatic. Other paths: unrecruitable in Part I.' },
-      { name: 'Mikaela', startingClass: 'Hunter', chapter: 'Dietrich’s Path', recruitment: 'Dietrich’s Path: Automatic. Other paths: unrecruitable in Part I.' },
+      member('Dietrich', 'Commoner', guestOnlyInPartI, 'Ch. 1 (Auto)', 'Guest in Ch. 7; clear Dietrich’s Paralogue.', 'Guest in Ch. 6; clear Dietrich’s Paralogue.'),
+      member('Fabio', 'Commoner (Diviner/Shaman path)', 'Guest only in Part I.', 'Ch. 1 (Auto)', 'Guest only in Part I.', 'Ch. 11+ (3S, 9R, clear Dietrich’s Paralogue, complete Fabio’s Request after 11/4; guest in Ch. 6)'),
+      member('Esmeralda', 'Commoner (Soldier/Armored Knight path)', 'Ch. 7+ (2S, 7R, complete Request)', 'Ch. 2 (Auto)', 'Ch. 9+ (3S, 9R, complete Request)', 'Ch. 7+ (3S, 6R, complete Request)'),
+      member('Mikaela', 'Hunter / Archer', 'Ch. 6+ (3S, 5R, 3,000G)', 'Ch. 4 (Auto)', 'Ch. 8+ (3S, 8R, 3,000G)', 'Ch. 7+ (3S, 6R, 3,000G)'),
     ],
   },
   {
     faction: 'Megaira’s Beacon (Theodora’s Path · Wolf Obelisk)',
     members: [
-      { name: 'Theodora', startingClass: 'Noble (Wolf Obelisk)', chapter: 'Theodora’s Path · Ch. 1', recruitment: 'Theodora’s Path: Ch. 1. Other paths: guest in Ch. 4/6 Qualifiers; clear Theodora’s Paralogue to keep.' },
-      { name: 'Bonaventure', startingClass: 'Soldier', chapter: 'Theodora’s Path', recruitment: 'Theodora’s Path: Automatic.' },
-      { name: 'Tobias', startingClass: 'Gladiator', chapter: 'Theodora’s Path', recruitment: 'Theodora’s Path: Automatic; strictly exclusive to Theodora’s Path.' },
-      { name: 'Lysander', startingClass: 'Diviner', chapter: 'Theodora’s Path', recruitment: 'Theodora’s Path: Automatic.' },
-      { name: 'Lilian', startingClass: 'Hunter', chapter: 'Theodora’s Path', recruitment: 'Theodora’s Path: Automatic.' },
+      member('Theodora', 'Noble', 'Guest only in Part I.', 'Clear Theodora’s Paralogue.', 'Ch. 1 (Auto)', 'Guest in Part I, Ch. 6.'),
+      member('Bonaventure', 'Noble (Myrmidon/Shaman path)', guestOnlyInPartI, guestOnlyInPartI, 'Ch. 1 (Auto)', 'Guest in Part I, Ch. 6.'),
+      member('Tobias', 'Noble (Soldier/Armored Knight path)', 'Unavailable; strictly exclusive to Theodora’s Path.', 'Unavailable; strictly exclusive to Theodora’s Path.', 'Ch. 1 (Auto; exclusive to Theodora’s Path)', 'Unavailable; strictly exclusive to Theodora’s Path.'),
+      member('Lilian', 'Hunter / Archer', 'Ch. 8–11 (2S, 8R, 5,000G)', 'Ch. 7–11 (2S, 8R, 5,000G)', 'Ch. 4 (Auto)', 'Ch. 7–11 (2S, 7R, 5,000G)'),
+      member('Lysander', 'Ornius Rider / Armored Ornius Rider', 'Ch. 8–11 (3S, 8R, give 5 Iron Spears)', 'Ch. 6–11 (3S, 6R, give 5 Iron Spears)', 'Ch. 4 (Auto)', 'Ch. 7–11 (3S, 7R, give 5 Iron Spears)'),
     ],
   },
   {
     faction: 'Rose Tempest (Leda’s Path · Eagle Obelisk)',
     members: [
-      { name: 'Leda', startingClass: 'Commoner (Eagle Obelisk)', chapter: 'Leda’s Path · Ch. 1', recruitment: 'Leda’s Path: Ch. 1. Other paths: guest in Ch. 6/7 Qualifiers; clear Leda’s Paralogue to keep.' },
-      { name: 'Buccar', startingClass: 'Gladiator', chapter: 'Leda’s Path', recruitment: 'Leda’s Path: Automatic.' },
-      { name: 'Sirocco', startingClass: 'Ornius Rider', chapter: 'Leda’s Path · Ch. 1', recruitment: `Leda’s Path: Ch. 1 automatic. Other paths: ${sharedNonRouteRecruit} Ch. 7–8+, Support Lv. 1–3, Renown Lv. 5–9, and complete Sirocco’s Request.` },
-      { name: 'Mu', startingClass: 'Diviner', chapter: 'Leda’s Path · Ch. 1', recruitment: `Leda’s Path: Ch. 1 automatic. Other paths: ${sharedNonRouteRecruit} Ch. 6–9+, Support Lv. 3, Renown Lv. 7–9, and deliver 3 Glirmosa.` },
-      { name: 'Olympia', startingClass: 'Hunter', chapter: 'Leda’s Path · Ch. 4', recruitment: `Leda’s Path: Ch. 4 automatic. Other paths: ${sharedNonRouteRecruit} Ch. 6–9+, Support Lv. 3, Renown Lv. 6–9, and complete 3 Requests.` },
+      member('Leda', 'Commoner', guestOnlyInPartI, 'Clear Leda’s Paralogue.', 'Guest in Ch. 7; clear Leda’s Paralogue.', 'Ch. 1 (Auto)'),
+      member('Buccar', 'Armored Knight', guestOnlyInPartI, 'Ch. 9+ (3S, 8R, clear Leda’s Paralogue)', 'Ch. 10+ (3S, 8R, clear Leda’s Paralogue; guest in Ch. 7)', 'Ch. 1 (Auto)'),
+      member('Sirocco', 'Myrmidon', 'Ch. 8+ (3S, 9R, give Monument Verse)', 'Ch. 7+ (3S, 9R, give Monument Verse)', 'Ch. 7+ (1S, 5R, give Monument Verse)', 'Ch. 1 (Auto)'),
+      member('Mu', 'Pugilist', 'Ch. 8+ (3S, 9R, give 3 Glirmosa)', 'Ch. 6+ (3S, 7R, give 3 Glirmosa)', 'Ch. 9+ (3S, 9R, give 3 Glirmosa)', 'Ch. 1 (Auto)'),
+      member('Olympia', 'Priest', 'Ch. 8+ (3S, 8R, clear 3 Requests)', 'Ch. 6+ (3S, 6R, clear 3 Requests)', 'Ch. 9+ (3S, 9R, clear 3 Requests)', 'Ch. 3 (Auto)'),
     ],
   },
   {
     faction: 'Fiery Mane (Heroic Games Clan)',
     members: [
-      { name: 'Bertrand', startingClass: 'Not supplied in notes', chapter: 'Part III', recruitment: 'Join in Part III via the Bertrand Paralogue.' },
-      { name: 'Gaitz', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Dante', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Goliath', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + deliver 3 Giant’s Meat (farmed at Secret Altar).` },
-      { name: 'Jester', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + complete Jester’s Request.` },
+      member('Gaitz', 'Bardinger', 'Unavailable; Dietrich-exclusive.', 'Ch. 12 (3S, 10R, clear Bertrand’s Paralogue) · Dietrich exclusive.', 'Unavailable; Dietrich-exclusive.', 'Unavailable; Dietrich-exclusive.'),
+      member('Dante', 'Diviner / Ovate', 'Ch. 9+ (3S, 10R)', 'Ch. 7+ (2S, 8R)', 'Ch. 7+ (3S, 6R)', 'Ch. 9+ (3S, 10R)', { sharedRecruitmentNote: 'All paths: give 8,000G.' }),
+      member('Goliath', 'Armored Knight / Dreadnought', 'Ch. 7+ (3S, 7R)', 'Ch. 6+ (3S, 6R)', 'Ch. 9+ (3S, 9R)', 'Ch. 9+ (3S, 10R)', { sharedRecruitmentNote: 'All paths: give 3 Giants’ Meat.' }),
+      member('Jester', 'Myrmidon / Shido', 'Ch. 9+ (3S, 10R)', 'Ch. 6+ (3S, 6R)', 'Ch. 9+ (3S, 9R)', 'Ch. 9+ (3S, 10R)', { sharedRecruitmentNote: 'All paths: clear Jester’s 3 Combat Quests.' }),
     ],
   },
   {
     faction: 'Tale of the Moon (Heroic Games Clan)',
     members: [
-      { name: 'Talimun', startingClass: 'Not supplied in notes', chapter: 'Part III', recruitment: 'Join in Part III via the Talimun Paralogue.' },
-      { name: 'Ursula', startingClass: 'Not supplied in notes', chapter: 'Part II / Part III', recruitment: 'Clear Talimun’s Paralogue; unavailable on Leda’s Path.' },
-      { name: 'Simon', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Ludia', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Fianna', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
+      member('Ursula', 'Hunter / Ranger', 'Ch. 10+ (3S, 10R)', 'Ch. 9+ (3S, 7R)', 'Ch. 11+ (3S, 9R; guest in Ch. 5)', 'Guest in Ch. 5 and Ch. 8; unavailable for Part I recruitment.', { sharedRecruitmentNote: 'Clear Talimun’s Paralogue and agree 3 times.' }),
+      member('Simon', 'Rogue', 'Ch. 8+ (3S, 8R)', 'Ch. 6+ (3S, 7R)', 'Ch. 8+ (3S, 7R)', 'Ch. 7+ (3S, 6R)', { sharedRecruitmentNote: 'All paths: pay 500G and pick Tails.' }),
+      member('Ludia', 'Diviner / Bishop', 'Ch. 8+ (3S, 9R)', 'Ch. 7+ (3S, 9R)', 'Ch. 8+ (3S, 7R)', 'Ch. 7+ (3S, 7R)', { sharedRecruitmentNote: 'All paths: gather information at Callianeira Port.' }),
+      member('Fianna', 'Priest / Troubadour', 'Ch. 8+ (3S, 8R)', 'Ch. 6+ (3S, 7R)', 'Ch. 9+ (3S, 9R)', 'Ch. 6+ (3S, 5R)', { sharedRecruitmentNote: 'All paths: give 3,000G.' }),
     ],
   },
   {
     faction: 'Linaria Dewdrops (Heroic Games Clan)',
     members: [
-      { name: 'Orchel', startingClass: 'Not supplied in notes', chapter: 'Part III', recruitment: 'Join in Part III via the Orchel Paralogue.' },
-      { name: 'Diego', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Ninae', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + deliver 1 Paradise Fish (caught only at Lake Brontes).` },
-      { name: 'Seteth', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Loretta', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: 'Give a Gift first to unlock the Recruit prompt; then Support + Renown (Renown Lv. 5 on Theodora’s Path; Renown Lv. 8 on Dietrich’s Path) + Negotiation.' },
+      member('Diego', 'Brigand / Warrior', 'Ch. 11+ (3S, 10R)', 'Ch. 11+ (3S, 9R)', 'Ch. 12 (2S, 8R; guest in Ch. 3)', 'Ch. 11+ (3S, 8R; guest in Ch. 5)', { sharedRecruitmentNote: 'All paths: clear Orchel’s Regret Paralogue.' }),
+      member('Ninae', 'Soldier / Sentinel', 'Ch. 6+ (3S, 6R)', 'Ch. 7+ (3S, 8R)', 'Ch. 7+ (3S, 6R)', 'Ch. 8+ (3S, 8R)', { sharedRecruitmentNote: 'All paths: give 1 Paradise Fish.' }),
+      member('Seteth', 'Priest / Bishop', 'Ch. 6+ (3S, 6R)', 'Unavailable.', 'Ch. 7+ (3S, 6R; guest in Ch. 3)', 'Ch. 9+ (3S, 10R)', { sharedRecruitmentNote: 'Complete Seteth’s Request.' }),
+      member('Loretta', 'Myrmidon', 'Ch. 7+ (3S, 7R)', 'Ch. 7+ (3S, 9R)', 'Ch. 7+ (3S, 5R; guest in Ch. 3)', 'Ch. 6+ (3S, 5R)', { sharedRecruitmentNote: 'All paths: give 3 Iron Swords.' }),
     ],
   },
   {
     faction: 'Bridal Party of the Pale Raven (Heroic Games Clan)',
     members: [
-      { name: 'Anatolia', startingClass: 'Not supplied in notes', chapter: 'Part III', recruitment: 'Join in Part III via the Anatolia Paralogue.' },
-      { name: 'Sha Lan', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Nezha', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Dadao', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Halvin', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + deliver 10 Dates (fruit item).` },
+      member('Sha Lan', 'Diviner / Wiseman', unavailableInPartI, 'Ch. 11+ (3S, 10R)', 'Unavailable for Part I recruitment; guest in Ch. 5.', 'Ch. 10+ (3S, 8R; guest in Ch. 5)', { sharedRecruitmentNote: 'Clear Anatolia’s Paralogue and answer 3 questions.' }),
+      member('Nezha', 'Gladiator', 'Ch. 6–10 (3S, 6R)', 'Ch. 8–12 (3S, 10R)', 'Ch. 7–11 (2S, 6R)', 'Ch. 9–12 (3S, 9R)', { sharedRecruitmentNote: 'All paths: give 3 Sandworm Meat.' }),
+      member('Dadao', 'Gladiator', 'Ch. 7–10 (3S, 7R)', 'Ch. 8–12 (3S, 10R)', 'Ch. 7–11 (2S, 5R)', 'Ch. 6–12 (2S, 5R)', { sharedRecruitmentNote: 'All paths: give 2 Kothar Gar.' }),
+      member('Halvin', 'Hunter', 'Ch. 6–10 (3S, 5R)', 'Ch. 7–12 (3S, 9R)', 'Ch. 8–11 (3S, 7R)', 'Ch. 7–12 (3S, 7R)', { sharedRecruitmentNote: 'All paths: give 10 Dates.' }),
     ],
   },
   {
     faction: 'Other Clan Leaders & Recruits',
     members: [
-      { name: 'Benditz', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Alexandra', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Zarcone', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Jasmine', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + pay 500G–2,000G.` },
-      { name: 'Kiroc', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + deliver Pure Water (3 on Leda’s Path; 8 on Theodora’s Path).` },
-      { name: 'Inyoni', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + pay 3,000G.` },
-      { name: 'Peppe', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Sofia', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: sharedClanRecruit },
-      { name: 'Io', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + pay 800G–1,500G.` },
-      { name: 'Yang Jie', startingClass: 'Not supplied in notes', chapter: 'Part I · Cross-route', recruitment: `Give a Gift first to unlock the Recruit prompt; then Support + Renown + answer Yang Jie’s dialogue questions correctly.` },
+      member('Guzran', 'Myrmidon', 'Ch. 3 (Auto)', 'Ch. 7+ (3S, 8R)', 'Ch. 8+ (3S, 8R)', 'Ch. 5+ (1S, 3R)'),
+      member('Yang Jie', 'Diviner', 'Ch. 4+ (2S, 3R, answer 3 questions)', 'Ch. 4 (Auto)', 'Ch. 9+ (3S, 9R, answer 3 questions)', 'Ch. 8+ (3S, 8R, answer 3 questions)'),
+      member('Sofia', 'Archer', 'Ch. 8+ (3S, 9R)', 'Ch. 7+ (3S, 9R)', 'Ch. 5+ (1S, 2R)', 'Ch. 7+ (3S, 7R)'),
+      member('Catania', 'Myrmidon / Rogue', 'Ch. 9+ (3S, 10R)', 'Ch. 7+ (1S, 8R)', 'Ch. 8+ (3S, 7R)', 'Ch. 4+ (1S, 2R)'),
+      member('Noctula', 'Shaman', 'Ch. 5+ (1S, 4R)', 'Ch. 6+ (1S, 6R)', 'Ch. 6+ (1S, 3R)', 'Ch. 8+ (3S, 8R)'),
+      member('Io', 'Light Cavalry', 'Ch. 9+ (3S, 10R, 4,000G)', 'Ch. 4+ (2S, 3R, 800G)', 'Ch. 10+ (3S, 10R, 4,000G)', 'Ch. 7+ (1S, 6R, 1,500G)'),
+      member('Kiroc', 'Pugilist', 'Ch. 8+ (3S, 8R, give 8 Pure Water)', 'Ch. 6+ (1S, 4R, give 3 Pure Water)', 'Ch. 10+ (3S, 10R, give 8 Pure Water)', 'Ch. 5+ (1S, 4R, give 3 Pure Water)'),
+      member('Nydine', 'Brigand', 'Ch. 7+ (1S, 6R, give 2 Bronze Axes)', 'Ch. 4+ (2S, 5R, give 2 Bronze Axes)', 'Ch. 7+ (3S, 5R, give 3 Iron Axes)', 'Ch. 9+ (3S, 10R, give 3 Iron Axes)'),
+      member('Majide', 'Gladiator', 'Ch. 6+ (2S, 5R, agree 3 times)', 'Ch. 7+ (3S, 8R, agree 3 times)', 'Ch. 8+ (3S, 8R, agree 3 times)', 'Ch. 9+ (3S, 9R, agree 3 times)'),
+      member('Zarcone', 'Gladiator', 'Ch. 8+ (3S, 8R)', 'Ch. 6+ (3S, 7R)', 'Ch. 6+ (1S, 4R)', 'Ch. 6+ (2S, 5R)', { sharedRecruitmentNote: 'All paths: refuse 3 times, then pay 10G.' }),
+      member('Benditz', 'Charioteer', 'Ch. 8+ (3S, 9R)', 'Ch. 6+ (2S, 7R)', 'Ch. 8+ (1S, 8R)', 'Ch. 7+ (3S, 7R)'),
+      member('Alexandra', 'Wing Soldier', 'Ch. 7+ (2S, 7R)', 'Ch. 7+ (3S, 8R)', 'Ch. 8+ (1S, 6R)', 'Ch. 9+ (3S, 10R)'),
+      member('Jasmine', 'Armored Knight', 'Ch. 8+ (1S, 8R, 2,000G)', 'Ch. 7+ (3S, 9R, 5,000G)', 'Ch. 8+ (3S, 8R, 5,000G)', 'Ch. 6+ (2S, 4R, 500G)'),
+      member('Inyoni', 'Archer', 'Ch. 8+ (3S, 8R, 6,000G)', 'Ch. 8+ (3S, 8R, 6,000G)', 'Ch. 9+ (1S, 9R, 4,000G)', 'Ch. 9+ (1S, 7R, 3,000G)'),
+      member('Nuzzuo', 'Rogue', 'Ch. 7+ (2S, 6R, give 3 Iron Bows)', 'Ch. 8+ (1S, 9R, give 2 Iron Bows)', 'Ch. 9+ (1S, 6R, give 3 Iron Bows)', 'Ch. 9+ (3S, 9R, give 3 Iron Bows)'),
+      member('Peppe', 'Pugilist / Warrior', 'Ch. 10+ (1S, 9R, clear Bertrand’s Paralogue)', 'Ch. 9+ (3S, 8R, clear Bertrand’s Paralogue)', 'Ch. 11+ (2S, 7R, clear Bertrand’s Paralogue)', 'Unavailable.'),
     ],
   },
   {
     faction: 'Part II & Part III Story / Paralogue Recruits',
     members: [
-      { name: 'Creek', startingClass: 'Not supplied in notes', chapter: 'Part II · Ch. 2', recruitment: 'Defeat Creek in Part II Ch. 2 to recruit him.' },
-      { name: 'Nathan', startingClass: 'Not supplied in notes', chapter: 'Part II · Ch. 3', recruitment: 'Defeat Nathan with Creek in Part II Ch. 3 to recruit Nathan.' },
-      { name: 'Centurio', startingClass: 'Not supplied in notes', chapter: 'Later story chapters', recruitment: 'Join automatically through later story chapters.' },
-      { name: 'Aswan', startingClass: 'Not supplied in notes', chapter: 'Later story chapters', recruitment: 'Join automatically through later story chapters.' },
+      member('Creek', 'Bardinger', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part II: War, Ch. 2 · clear “My Late Sister’s Accessory” subquest, then defeat Creek in battle.' }),
+      member('Nathan', 'Bardinger', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part II: War, Ch. 3 · defeat Nathan with Creek in battle.' }),
+      member('Bertrand', 'Warrior', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part III: Salvation, Section 1 · joins automatically if Bertrand’s Paralogue was cleared.' }),
+      member('Talimun', 'Ovate', noPartIRecruitmentListed, noPartIRecruitmentListed, 'Guest in Part I, Ch. 5.', 'Guest in Part I, Ch. 5 and Ch. 8.', { postPartIRecruitment: 'Part III: Salvation, Section 1 · joins automatically if Talimun’s Paralogue was cleared.' }),
+      member('Anatolia', 'The Avatar', noPartIRecruitmentListed, noPartIRecruitmentListed, 'Guest in Part I, Ch. 5.', 'Guest in Part I, Ch. 5.', { postPartIRecruitment: 'Part III: Salvation, Section 1 · joins automatically if Anatolia’s Paralogue was cleared.' }),
+      member('Orchel', 'Troubadour', noPartIRecruitmentListed, noPartIRecruitmentListed, 'Guest in Part I, Ch. 3.', 'Guest in Part I, Ch. 5.', { postPartIRecruitment: 'Part III: Salvation, Section 1 · joins automatically if Orchel’s Paralogue was cleared.' }),
+      member('Centurio', 'Dreadnought', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part III: Salvation, Section 2 · clear “Rescue Centurio” subquest, then talk to him in Dagsion.' }),
+      member('Aswan', 'Bow Adept', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part III: Salvation, Section 5 · joins automatically if Aswan survived Part II.' }),
+      member('Tahonia', 'War Monk', noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, noPartIRecruitmentListed, { postPartIRecruitment: 'Part III: Salvation, Section 5 · joins automatically if Tahonia survived Part II.' }),
+      member('Klapka', 'Guardian', noPartIRecruitmentListed, noPartIRecruitmentListed, 'No Part I recruitment listed; Part III requires Theodora’s Path.', noPartIRecruitmentListed, { postPartIRecruitment: 'Part III: Salvation, Section 6 · visit Dagsion if Klapka survived the Battle vs. Mahadu; requires Theodora’s Path.' }),
     ],
   },
 ];
