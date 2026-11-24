@@ -226,9 +226,9 @@ function GalleryPage({ scene, setScene }: { scene: Scene; setScene: (s: Scene) =
 }
 
 function BottomNav({ active }: { active: string }) {
-  const links = [{ href: '/', label: 'Chapters', icon: Map }, { href: '/loot', label: 'Chests & Loot', icon: Boxes }, { href: '/database', label: 'Database', icon: Library }, { href: '/gallery', label: 'Gallery & Theme', icon: BookOpen }];
+  const links = [{ href: '/', label: 'Chapters', icon: Map }, { href: '/loot', label: 'Chests & Loot', icon: Boxes }, { href: '/database', label: 'Database', icon: Library }];
   return <nav className="bottom-nav" aria-label="Primary navigation"><div className="nav-inner">{links.map(({ href, label, icon: Icon }) => <Link href={href} className={`nav-link ${active === href ? 'active' : ''}`} aria-current={active === href ? 'page' : undefined} data-testid={`link-nav-${href === '/' ? 'chapters' : href.slice(1)}`} key={href}><Icon aria-hidden="true" /><span>{label}</span></Link>)}</div></nav>;
-}
+    }
 
 type SoundId = 'rain' | 'hearth' | 'lute';
 type SoundState = Record<SoundId, { on: boolean; volume: number }>;
